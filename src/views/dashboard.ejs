@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= title %></title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="layout">
+      <section class="card">
+        <div class="dashboard-head">
+          <div class="row">
+            <img class="avatar" src="<%= user.avatarUrl %>" alt="avatar" />
+            <div>
+              <p class="eyebrow">GitIntent Console</p>
+              <h1><%= user.displayName %></h1>
+              <p class="meta">@<%= user.username %></p>
+            </div>
+          </div>
+
+          <form method="post" action="/logout">
+            <button type="submit" class="btn ghost logout-btn">Logout</button>
+          </form>
+        </div>
+        <h2 class="section-title">Your unique profile link</h2>
+        <div class="link-box">
+          <input id="profile-link" readonly value="<%= baseUrl %>/u/<%= user.profileSlug %>" />
+          <button id="copy-link-btn" type="button" class="btn ghost copy-btn">Copy Link</button>
+        </div>
+        <p id="copy-feedback" class="subtext copy-feedback" aria-live="polite"></p>
+
+        <p class="subtext content">Share this link publicly. You will receive email alerts when activity happens.</p>
+
+        <section class="track-help">
+          <h3>Track where views come from</h3>
+          <p class="subtext content">
+            To know the source of each GitHub view, add a <strong>ref</strong> value to your link.
+          </p>
+          <ul class="example-list">
+            <li>
+              <span>Resume:</span>
+              <code id="example-resume"><%= baseUrl %>/u/<%= user.profileSlug %>?<strong>ref=resume</strong></code>
+              <button type="button" class="icon-copy-btn" data-copy-target="example-resume" aria-label="Copy resume link" title="Copy">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M9 9h10v12H9z"></path>
+                  <path d="M5 3h10v2H7v10H5z"></path>
+                </svg>
+                <span class="copy-label">Copy</span>
+              </button>
+            </li>
+            <li>
+              <span>LinkedIn:</span>
+              <code id="example-linkedin"><%= baseUrl %>/u/<%= user.profileSlug %>?<strong>ref=linkedin</strong></code>
+              <button type="button" class="icon-copy-btn" data-copy-target="example-linkedin" aria-label="Copy LinkedIn link" title="Copy">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M9 9h10v12H9z"></path>
+                  <path d="M5 3h10v2H7v10H5z"></path>
+                </svg>
+                <span class="copy-label">Copy</span>
+              </button>
+            </li>
+            <li>
+              <span>Portfolio:</span>
+              <code id="example-portfolio"><%= baseUrl %>/u/<%= user.profileSlug %>?<strong>ref=portfolio</strong></code>
+              <button type="button" class="icon-copy-btn" data-copy-target="example-portfolio" aria-label="Copy portfolio link" title="Copy">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                  <path d="M9 9h10v12H9z"></path>
+                  <path d="M5 3h10v2H7v10H5z"></path>
+                </svg>
+                <span class="copy-label">Copy</span>
+              </button>
+            </li>
+          </ul>
+        </section>
+
+      </section>
+    </main>
+
+    <script>
+      (() => {
+        const linkInput = document.getElementById("profile-link");
+        const copyButton = document.getElementById("copy-link-btn");
+        const feedback = document.getElementById("copy-feedback");
+
+        if (!linkInput || !copyButton || !feedback) return;
+
+        async function copyLink() {
+          const linkValue = linkInput.value;
+
+          try {
+            await navigator.clipboard.writeText(linkValue);
+            feedback.textContent = "Link copied.";
+            copyButton.textContent = "Copied";
+          } catch (_error) {
+            linkInput.focus();
+            linkInput.select();
+            const copied = document.execCommand("copy");
+            feedback.textContent = copied ? "Link copied." : "Could not copy link. Please copy it manually.";
+            copyButton.textContent = copied ? "Copied" : "Copy Link";
+          }
+
+          window.setTimeout(() => {
+            feedback.textContent = "";
+            copyButton.textContent = "Copy Link";
+          }, 1600);
+        }
+
+        copyButton.addEventListener("click", copyLink);
+
+        async function copyExampleLink(targetId, button) {
+          const targetEl = document.getElementById(targetId);
+          if (!targetEl) return;
+
+          const textToCopy = targetEl.textContent || "";
+          let copied = false;
+
+          try {
+            await navigator.clipboard.writeText(textToCopy);
+            copied = true;
+          } catch (_error) {
+            const range = document.createRange();
+            range.selectNodeContents(targetEl);
+            const selection = window.getSelection();
+            selection.removeAllRanges();
+            selection.addRange(range);
+            copied = document.execCommand("copy");
+            selection.removeAllRanges();
+          }
+
+          if (copied) {
+            const label = button.querySelector(".copy-label");
+            const originalTitle = button.title;
+            button.classList.add("copied");
+            button.title = "Copied";
+            if (label) label.textContent = "Copied";
+            window.setTimeout(() => {
+              button.classList.remove("copied");
+              button.title = originalTitle;
+              if (label) label.textContent = "Copy";
+            }, 1200);
+          }
+        }
+
+        document.querySelectorAll(".icon-copy-btn").forEach((button) => {
+          button.addEventListener("click", () => {
+            const targetId = button.getAttribute("data-copy-target");
+            if (!targetId) return;
+            copyExampleLink(targetId, button);
+          });
+        });
+
+        const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        if (browserTimezone) {
+          fetch("/dashboard/timezone", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+            body: new URLSearchParams({ timezone: browserTimezone }).toString(),
+            credentials: "same-origin",
+          }).catch(() => {
+            // Non-blocking sync; email formatter falls back to UTC.
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>
