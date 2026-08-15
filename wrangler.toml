@@ -1,5 +1,0 @@
-name = "gitintent"
-compatibility_date = "2026-08-15"
-
-# Explicitly set static output for Cloudflare Pages.
-pages_build_output_dir = "src/public"
