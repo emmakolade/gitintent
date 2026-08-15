@@ -19,8 +19,13 @@ for (const key of required) {
 }
 
 export const env = {
+  nodeEnv: process.env.NODE_ENV || "development",
   port: Number(process.env.PORT || 3000),
   baseUrl: process.env.BASE_URL || "http://localhost:3000",
+  trustProxy: process.env.TRUST_PROXY === "false" ? false : true,
+  sessionCookieSecure:
+    process.env.SESSION_COOKIE_SECURE === "true" ||
+    (process.env.SESSION_COOKIE_SECURE !== "false" && process.env.NODE_ENV === "production"),
   sessionSecret: process.env.SESSION_SECRET as string,
   mongoUri: process.env.MONGODB_URI as string,
   githubClientId: process.env.GITHUB_CLIENT_ID as string,
