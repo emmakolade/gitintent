@@ -12,8 +12,6 @@ async function bootstrap() {
 
   const app = express();
 
-  app.set("trust proxy", env.trustProxy);
-
   app.set("view engine", "ejs");
   app.set("views", path.join(process.cwd(), "src", "views"));
 
@@ -31,7 +29,7 @@ async function bootstrap() {
       cookie: {
         httpOnly: true,
         sameSite: "lax",
-        secure: env.sessionCookieSecure,
+        secure: false,
         maxAge: 1000 * 60 * 60 * 24 * 7,
       },
     })
