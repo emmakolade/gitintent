@@ -14,8 +14,17 @@ export default async function DashboardPage() {
     redirect("/");
   }
 
-  await connectDatabase();
-  const user = await User.findById(userId).lean();
+  let user: { profileSlug: string; avatarUrl?: string; displayName: string; username: string } | null = null;
+
+  try {
+    await connectDatabase();
+    user = await User.findById(userId)
+      .lean<{ profileSlug: string; avatarUrl?: string; displayName: string; username: string }>();
+  } catch (error) {
+    console.error("Failed to load dashboard user", error);
+    redirect("/");
+  }
+
   if (!user) {
     redirect("/");
   }
