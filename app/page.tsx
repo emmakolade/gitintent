@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { getSessionFromCookies } from "@/lib/auth/session";
+import { getSessionUserIdFromCookies } from "@/lib/auth/session";
 
 export default async function LandingPage() {
-  const session = await getSessionFromCookies();
-  if (session?.userId && session.profileSlug && session.displayName && session.username) {
+  const userId = await getSessionUserIdFromCookies();
+  if (userId) {
     redirect("/dashboard");
   }
 

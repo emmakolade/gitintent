@@ -13,12 +13,8 @@ function getSessionSecretKey(): Uint8Array {
   return new TextEncoder().encode(secret);
 }
 
-export type SessionPayload = {
+type SessionPayload = {
   userId: string;
-  username?: string;
-  displayName?: string;
-  avatarUrl?: string;
-  profileSlug?: string;
 };
 
 export async function createSessionToken(payload: SessionPayload): Promise<string> {
@@ -62,14 +58,10 @@ export function getSessionCookieOptions() {
 }
 
 export async function getSessionUserIdFromCookies(): Promise<string | null> {
-  const payload = await getSessionFromCookies();
-  return payload?.userId ?? null;
-}
-
-export async function getSessionFromCookies(): Promise<SessionPayload | null> {
   const cookieStore = await cookies();
   const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
   if (!token) return null;
 
-  return await verifySessionToken(token);
+  const payload = await verifySessionToken(token);
+  return payload?.userId ?? null;
 }
