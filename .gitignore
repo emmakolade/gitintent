@@ -1,4 +1,10 @@
 node_modules
-dist
+.next
+.open-next
+.wrangler
+out
 .env
 *.log
+
+# Next.js build metadata
+next-env.d.ts

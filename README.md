@@ -1,83 +1,86 @@
-# GitIntent MVP (Version 0)
+# GitIntent (Next.js + Cloudflare)
 
-A lean MVP built with:
-- HTML/CSS (server-rendered EJS templates)
-- TypeScript + Express
+GitIntent is now fully rewritten in Next.js (App Router) and prepared for Cloudflare deployment using OpenNext.
+
+## Stack
+
+- Next.js (App Router)
+- TypeScript
 - MongoDB + Mongoose
-- GitHub OAuth
-- Gmail SMTP (activity email alerts)
+- GitHub OAuth (custom OAuth flow)
+- Resend Email API for activity alerts
+- OpenNext for Cloudflare Workers deployment
 
-## What this version does
+## Features
 
-- Users authenticate with GitHub.
-- Each user gets a unique shareable link: `/u/:slug`.
-- Visiting `/u/:slug` now redirects directly to the user's GitHub profile.
-- That redirect is tracked as a `GITHUB_CLICK` activity.
-- The owner receives email alerts for those activities.
-- Dashboard currently does **not** display activity feed yet (email only), based on your request.
+- GitHub login
+- Per-user tracked URL: `/u/:slug`
+- Redirect to GitHub profile on tracked link hit
+- Track click source, location, IP, and user agent
+- Email alerts for tracked click activity
+- Dashboard for copying tracked links and syncing user timezone
 
-## 1. Setup
+## Environment variables
 
-1. Install dependencies:
+Copy `.env.example` to `.env` and configure:
 
-```bash
-npm install
-```
-
-2. Copy env file:
-
-```bash
-copy .env.example .env
-```
-
-3. Fill `.env` values:
+- `BASE_URL` (ex: `http://localhost:3000`)
+- `SESSION_SECRET` (long random secret)
 - `MONGODB_URI`
-- `SESSION_SECRET`
 - `GITHUB_CLIENT_ID`
 - `GITHUB_CLIENT_SECRET`
-- `GITHUB_CALLBACK_URL`
-- `GMAIL_USER`
-- `GMAIL_APP_PASSWORD`
-- `BASE_URL`
+- `GITHUB_CALLBACK_URL` (ex: `http://localhost:3000/auth/github/callback`)
+- `RESEND_API_KEY`
+- `ALERT_FROM_EMAIL` (verified sender in Resend)
 
-## 2. GitHub OAuth app settings
+## GitHub OAuth settings
 
-In your GitHub OAuth app:
+Configure your GitHub OAuth app:
+
 - Homepage URL: `http://localhost:3000`
 - Authorization callback URL: `http://localhost:3000/auth/github/callback`
 
-Use your existing client ID and secret in `.env`.
+For production, switch both values to your deployed domain.
 
-## 3. Gmail SMTP note
-
-Use a Gmail App Password (not your main account password).
-- Account security -> 2-Step Verification -> App passwords.
-
-## 4. Run
-
-Development:
+## Local development
 
 ```bash
+npm install
 npm run dev
 ```
 
-Build and run production-style:
+Open `http://localhost:3000`.
+
+## Production build (local validation)
 
 ```bash
 npm run build
 npm start
 ```
 
-Open:
-- Landing: `http://localhost:3000`
-- After login, dashboard shows your unique shareable link.
+## Cloudflare deployment
 
-## Project structure
+1. Authenticate Wrangler:
 
-- `src/server.ts` app bootstrap
-- `src/routes/web.ts` auth + dashboard + tracking routes
-- `src/models/User.ts` user data and unique slug
-- `src/models/Activity.ts` tracked events
-- `src/services/email.ts` Gmail SMTP sender
-- `src/views/*` HTML pages (EJS)
-- `src/public/styles.css` styles
+```bash
+npx wrangler login
+```
+
+2. Build and deploy:
+
+```bash
+npm run cf:deploy
+```
+
+3. In Cloudflare dashboard (or via Wrangler), set all required environment variables for your Worker.
+
+## App routes
+
+- `/` landing page
+- `/dashboard` authenticated dashboard
+- `/auth/github` OAuth start
+- `/auth/github/callback` OAuth callback
+- `/logout` clears session
+- `/dashboard/regenerate-link` regenerate slug
+- `/api/dashboard/timezone` save timezone
+- `/u/[slug]` tracked redirect endpoint

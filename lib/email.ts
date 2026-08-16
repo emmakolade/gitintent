@@ -1,13 +1,5 @@
+import { env } from "@/lib/env";
 import nodemailer from "nodemailer";
-import { env } from "../config/env";
-
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: env.gmailUser,
-    pass: env.gmailAppPassword,
-  },
-});
 
 type ActivityEmailPayload = {
   to: string;
@@ -68,6 +60,18 @@ function formatTimestamp(date: Date, ownerTimezone?: string): { value: string; u
 }
 
 export async function sendActivityEmail(payload: ActivityEmailPayload): Promise<void> {
+  if (!env.gmailUser || !env.gmailAppPassword) {
+    throw new Error("Missing required environment variables: GMAIL_USER and GMAIL_APP_PASSWORD");
+  }
+
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: env.gmailUser,
+      pass: env.gmailAppPassword,
+    },
+  });
+
   const subject = "GitIntent: Someone viewed your Github";
   const profileUrl = `${env.baseUrl}/u/${payload.profileSlug}`;
   const eventType = formatEventType(payload.eventType);
@@ -147,4 +151,30 @@ export async function sendActivityEmail(payload: ActivityEmailPayload): Promise<
     text,
     html,
   });
+
+  // Resend integration intentionally commented out for now.
+  // Uncomment this block and remove transporter.sendMail above to switch back.
+  // if (!env.resendApiKey || !env.alertFromEmail) {
+  //   throw new Error("Missing required environment variables: RESEND_API_KEY and ALERT_FROM_EMAIL");
+  // }
+  //
+  // const response = await fetch("https://api.resend.com/emails", {
+  //   method: "POST",
+  //   headers: {
+  //     Authorization: `Bearer ${env.resendApiKey}`,
+  //     "Content-Type": "application/json",
+  //   },
+  //   body: JSON.stringify({
+  //     from: env.alertFromEmail,
+  //     to: [payload.to],
+  //     subject,
+  //     text,
+  //     html,
+  //   }),
+  // });
+  //
+  // if (!response.ok) {
+  //   const details = await response.text();
+  //   throw new Error(`Failed to send email (${response.status}): ${details}`);
+  // }
 }

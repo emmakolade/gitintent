@@ -1,4 +1,4 @@
-import { Schema, model, Document, Types } from "mongoose";
+import { Schema, model, models, type Document, type Types } from "mongoose";
 
 export interface IActivity extends Document {
   ownerId: Types.ObjectId;
@@ -24,4 +24,4 @@ const activitySchema = new Schema<IActivity>(
   { timestamps: { createdAt: true, updatedAt: false } }
 );
 
-export const Activity = model<IActivity>("Activity", activitySchema);
+export const Activity = models.Activity || model<IActivity>("Activity", activitySchema);

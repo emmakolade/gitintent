@@ -1,4 +1,4 @@
-import { Schema, model, Document } from "mongoose";
+import { Schema, model, models, type Document } from "mongoose";
 
 export interface IUser extends Document {
   githubId: string;
@@ -27,4 +27,4 @@ const userSchema = new Schema<IUser>(
   { timestamps: true }
 );
 
-export const User = model<IUser>("User", userSchema);
+export const User = models.User || model<IUser>("User", userSchema);

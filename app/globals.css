@@ -8,7 +8,6 @@
   --muted: #5b6f89;
   --primary: #0f6ce8;
   --primary-dark: #0a448d;
-  --teal: #0a8f9b;
   --line: rgba(13, 39, 73, 0.14);
   --line-strong: rgba(13, 39, 73, 0.24);
   --glow: rgba(15, 108, 232, 0.26);
@@ -127,10 +126,6 @@ p {
   transform: translateY(0);
 }
 
-.btn.secondary {
-  background: linear-gradient(135deg, #11a6b3, #0d6771);
-}
-
 .btn.ghost {
   color: var(--text);
   background: rgba(255, 255, 255, 0.72);
@@ -148,10 +143,6 @@ p {
   padding: 10px 14px;
   border-radius: 10px;
   font-size: 0.9rem;
-}
-
-.btn.logout-btn:hover {
-  background: rgba(255, 255, 255, 0.95);
 }
 
 .row {
@@ -189,11 +180,6 @@ p {
   font-family: "IBM Plex Mono", monospace;
 }
 
-.link-box input:focus {
-  outline: 2px solid rgba(15, 108, 232, 0.28);
-  border-color: rgba(15, 108, 232, 0.4);
-}
-
 .link-box {
   display: flex;
   gap: 10px;
@@ -217,8 +203,7 @@ p {
   padding: 14px;
   border: 1px solid var(--line);
   border-radius: 14px;
-  background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.78), rgba(243, 249, 255, 0.82));
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.78), rgba(243, 249, 255, 0.82));
 }
 
 .track-help h3 {
@@ -303,13 +288,6 @@ p {
   color: #188d5c;
 }
 
-.actions {
-  display: flex;
-  gap: 12px;
-  margin-top: 18px;
-  flex-wrap: wrap;
-}
-
 .subtext {
   color: var(--muted);
   font-size: 0.97rem;
@@ -319,30 +297,9 @@ p {
   margin-bottom: 8px;
 }
 
-.source-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.68);
-  border-radius: 999px;
-  padding: 6px 12px;
-  font-family: "IBM Plex Mono", monospace;
-  font-size: 0.78rem;
-  color: var(--muted);
-  margin-bottom: 14px;
-}
-
 .meta {
   color: var(--muted);
   margin-top: -4px;
-}
-
-.head-meta {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  margin-bottom: 10px;
 }
 
 .section-title {
@@ -375,10 +332,6 @@ p {
   .avatar {
     width: 62px;
     height: 62px;
-  }
-
-  .actions {
-    gap: 10px;
   }
 
   .dashboard-head {
