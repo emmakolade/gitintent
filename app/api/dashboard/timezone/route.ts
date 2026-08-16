@@ -12,24 +12,29 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: false }, { status: 401 });
   }
 
-  await connectDatabase();
+  try {
+    await connectDatabase();
 
-  const user = await User.findById(userId);
-  if (!user) {
-    return NextResponse.json({ ok: false }, { status: 404 });
+    const user = await User.findById(userId);
+    if (!user) {
+      return NextResponse.json({ ok: false }, { status: 404 });
+    }
+
+    const formData = await request.formData();
+    const submittedTimezone = typeof formData.get("timezone") === "string" ? String(formData.get("timezone")).trim() : "";
+
+    if (!submittedTimezone || !isValidTimeZone(submittedTimezone)) {
+      return NextResponse.json({ ok: false }, { status: 400 });
+    }
+
+    if (user.timezone !== submittedTimezone) {
+      user.timezone = submittedTimezone;
+      await user.save();
+    }
+
+    return NextResponse.json({ ok: true });
+  } catch (error) {
+    console.error("Failed to update timezone", error);
+    return NextResponse.json({ ok: false }, { status: 500 });
   }
-
-  const formData = await request.formData();
-  const submittedTimezone = typeof formData.get("timezone") === "string" ? String(formData.get("timezone")).trim() : "";
-
-  if (!submittedTimezone || !isValidTimeZone(submittedTimezone)) {
-    return NextResponse.json({ ok: false }, { status: 400 });
-  }
-
-  if (user.timezone !== submittedTimezone) {
-    user.timezone = submittedTimezone;
-    await user.save();
-  }
-
-  return NextResponse.json({ ok: true });
 }

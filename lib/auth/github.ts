@@ -98,7 +98,7 @@ export async function fetchGitHubProfile(accessToken: string): Promise<{ profile
 export async function upsertGitHubUser(params: {
   profile: GitHubUser;
   primaryEmail: string;
-}): Promise<string> {
+}): Promise<{ userId: string; username: string; displayName: string; avatarUrl?: string; profileSlug: string }> {
   await connectDatabase();
 
   const githubId = String(params.profile.id);
@@ -127,5 +127,11 @@ export async function upsertGitHubUser(params: {
     await user.save();
   }
 
-  return String(user._id);
+  return {
+    userId: String(user._id),
+    username: user.username,
+    displayName: user.displayName,
+    avatarUrl: user.avatarUrl,
+    profileSlug: user.profileSlug,
+  };
 }

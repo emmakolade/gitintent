@@ -1,35 +1,22 @@
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { DashboardClient } from "@/app/dashboard/dashboard-client";
-import { getSessionUserIdFromCookies } from "@/lib/auth/session";
-import { connectDatabase } from "@/lib/db";
-import { User } from "@/lib/models/User";
+import { getSessionFromCookies } from "@/lib/auth/session";
 import { env } from "@/lib/env";
 
 export const runtime = "nodejs";
 
 export default async function DashboardPage() {
-  const userId = await getSessionUserIdFromCookies();
-  if (!userId) {
+  const session = await getSessionFromCookies();
+  if (!session?.userId) {
     redirect("/");
   }
 
-  let user: { profileSlug: string; avatarUrl?: string; displayName: string; username: string } | null = null;
-
-  try {
-    await connectDatabase();
-    user = await User.findById(userId)
-      .lean<{ profileSlug: string; avatarUrl?: string; displayName: string; username: string }>();
-  } catch (error) {
-    console.error("Failed to load dashboard user", error);
+  if (!session.profileSlug || !session.displayName || !session.username) {
     redirect("/");
   }
 
-  if (!user) {
-    redirect("/");
-  }
-
-  const profileLink = `${env.baseUrl}/u/${user.profileSlug}`;
+  const profileLink = `${env.baseUrl}/u/${session.profileSlug}`;
 
   return (
     <main className="layout">
@@ -38,15 +25,15 @@ export default async function DashboardPage() {
           <div className="row">
             <Image
               className="avatar"
-              src={user.avatarUrl || "https://avatars.githubusercontent.com/u/9919?s=200&v=4"}
+              src={session.avatarUrl || "https://avatars.githubusercontent.com/u/9919?s=200&v=4"}
               alt="avatar"
               width={72}
               height={72}
             />
             <div>
               <p className="eyebrow">GitIntent Console</p>
-              <h1>{user.displayName}</h1>
-              <p className="meta">@{user.username}</p>
+              <h1>{session.displayName}</h1>
+              <p className="meta">@{session.username}</p>
             </div>
           </div>
 

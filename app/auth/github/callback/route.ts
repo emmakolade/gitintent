@@ -19,9 +19,15 @@ export async function GET(request: NextRequest) {
   try {
     const accessToken = await fetchGitHubAccessToken(code);
     const { profile, primaryEmail } = await fetchGitHubProfile(accessToken);
-    const userId = await upsertGitHubUser({ profile, primaryEmail });
+    const user = await upsertGitHubUser({ profile, primaryEmail });
 
-    const sessionToken = await createSessionToken({ userId });
+    const sessionToken = await createSessionToken({
+      userId: user.userId,
+      username: user.username,
+      displayName: user.displayName,
+      avatarUrl: user.avatarUrl,
+      profileSlug: user.profileSlug,
+    });
 
     const response = NextResponse.redirect(new URL("/dashboard", request.url));
     response.cookies.delete(OAUTH_STATE_COOKIE);
